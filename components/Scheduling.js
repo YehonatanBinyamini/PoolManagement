@@ -29,146 +29,160 @@ function Scheduling(students) {
     )
       waitingForGroup.push(student);
     else {
-      if (student.availableDays.includes("ראשון")) {
-        for (
-          let i = hourIndex[student.hours["sunday"]["start"]];
-          i <= hourIndex[student.hours["sunday"]["end"]] - 2;
-          i++
-        ) {
-          if (student.lessonsCounterPerDay == student.maxLessonsPerAvailableDay)
-            break;
-          if (
-            joniSunday[i] == "available" &&
-            joniSunday[i + 1] == "available" &&
-            joniSunday[i + 2] == "available"
-          ) {
-            setNewPrivateLesson(student, "Joni", "ראשון", 2, i, joniSunday);
-            if (student.lessonsLeftThisWeek == 0) break;
-          }
-        }
-      } //end of sunday
-      if (
-        student.availableDays.includes("שני") &&
-        student.lessonsLeftThisWeek > 0
-      ) {
-        for (
-          let i = hourIndex[student.hours["monday"]["start"]];
-          i <= hourIndex[student.hours["monday"]["end"]] - 2;
-          i++
-        ) {
-          if (student.lessonsCounterPerDay == student.maxLessonsPerAvailableDay)
-            break;
-          if (
-            yotamMonday[i] == "available" &&
-            yotamMonday[i + 1] == "available" &&
-            yotamMonday[i + 2] == "available"
-          ) {
-            setNewPrivateLesson(student, "Yotam", "שני", 3, i, yotamMonday);
-            if (student.lessonsLeftThisWeek == 0) break;
-          }
-        }
-      } // end of monday
-      if (
-        student.availableDays.includes("שלישי") &&
-        student.lessonsLeftThisWeek > 0
-      ) {
-        for (
-          let i = hourIndex[student.hours["tuesday"]["start"]];
-          i <= hourIndex[student.hours["tuesday"]["end"]] - 2;
-          i++
-        ) {
-          if (student.lessonsCounterPerDay == student.maxLessonsPerAvailableDay)
-            break;
-          if (
-            joniTuesday[i] == "available" &&
-            joniTuesday[i + 1] == "available" &&
-            joniTuesday[i + 2] == "available"
-          ) {
-            setNewPrivateLesson(student, "Joni", "שלישי", 4, i, joniTuesday);
-            if (student.lessonsLeftThisWeek == 0) break;
-            i = i + 2;
-          } else if (
-            yoniTuesday[i] == "available" &&
-            yoniTuesday[i + 1] == "available" &&
-            yoniTuesday[i + 2] == "available"
-          ) {
-            setNewPrivateLesson(student, "Yoni", "שלישי", 4, i, yoniTuesday);
-            if (student.lessonsLeftThisWeek == 0) break;
-            i = i + 2;
-          }
-        }
-      } //end of tuesday
-      if (
-        student.availableDays.includes("רביעי") &&
-        student.lessonsLeftThisWeek > 0
-      ) {
-        for (
-          let i = hourIndex[student.hours["wednesday"]["start"]];
-          i <= hourIndex[student.hours["wednesday"]["end"]] - 2;
-          i++
-        ) {
-          if (student.lessonsCounterPerDay == student.maxLessonsPerAvailableDay)
-            break;
-          if (
-            yoniWednesday[i] == "available" &&
-            yoniWednesday[i + 1] == "available" &&
-            yoniWednesday[i + 2] == "available"
-          ) {
-            setNewPrivateLesson(student, "Yoni", "רביעי", 5, i, yoniWednesday);
-            if (student.lessonsLeftThisWeek == 0) break;
-          }
-        }
-      } // end of wednesday
-      if (
-        student.availableDays.includes("חמישי") &&
-        student.lessonsLeftThisWeek > 0
-      ) {
-        for (
-          let i = hourIndex[student.hours["thursday"]["start"]];
-          i <= hourIndex[student.hours["thursday"]["end"]] - 2;
-          i++
-        ) {
-          if (student.lessonsCounterPerDay == student.maxLessonsPerAvailableDay)
-            break;
-          if (
-            joniThursday[i] == "available" &&
-            joniThursday[i + 1] == "available" &&
-            joniThursday[i + 2] == "available"
-          ) {
-            setNewPrivateLesson(student, "Joni", "חמישי", 6, i, joniThursday);
-            if (student.lessonsLeftThisWeek == 0) break;
-            i = i + 2;
-          } else if (
-            yotamThursday[i] == "available" &&
-            yotamThursday[i + 1] == "available" &&
-            yotamThursday[i + 2] == "available"
-          ) {
-            setNewPrivateLesson(student, "Yotam", "חמישי", 6, i, yotamThursday);
-            if (student.lessonsLeftThisWeek == 0) break;
-            i = i + 2;
-          } else if (
-            yoniThursday[i] == "available" &&
-            yoniThursday[i + 1] == "available" &&
-            yoniThursday[i + 2] == "available"
-          ) {
-            setNewPrivateLesson(student, "Yoni", "חמישי", 6, i, yoniThursday);
-            if (student.lessonsLeftThisWeek == 0) break;
-            i = i + 2;
-          }
-        }
-      } //end of thursday
-      if (student.lessonsLeftThisWeek > 0) {
-        conflicts.push({
-          student: student,
-          conflict: `לא נשאר מקום פנוי בשעות המבוקשות בימי ${student.availableDays},
-           לתלמיד ${student.fullName} לשבוע הקרוב. חסרים  ${student.lessonsLeftThisWeek}
-            שיעורים מתוך ${student.totalLessons} בסה"כ.`,
-        });
-      }
+      scheduleStudent(student);
     }
   }); // end forEach of students
-
   sortGroups();
+  waitingForGroup.forEach((student) => {
+    if (student.lessonsLeftThisWeek > 0) {
+      conflicts.push({
+        student: student,
+        conflict: `לתלמיד ${student.fullName} נשארו ${student.lessonsLeftThisWeek} מתוך ${student.totalLessons} שיעורים שלא שובץ לקבוצה `,
+      });
+    }
+  });
+
+  function scheduleStudent(student) {
+    if (student.availableDays.includes("ראשון")) {
+      for (
+        let i = hourIndex[student.hours["sunday"]["start"]];
+        i <= hourIndex[student.hours["sunday"]["end"]] - 2;
+        i++
+      ) {
+        if (student.lessonsCounterPerDay == student.maxLessonsPerAvailableDay)
+          break;
+        if (
+          joniSunday[i] == "available" &&
+          joniSunday[i + 1] == "available" &&
+          joniSunday[i + 2] == "available"
+        ) {
+          setNewPrivateLesson(student, "Joni", "ראשון", 2, i, joniSunday);
+          if (student.lessonsLeftThisWeek == 0) break;
+        }
+      }
+    } //end of sunday
+    if (
+      student.availableDays.includes("שני") &&
+      student.lessonsLeftThisWeek > 0
+    ) {
+      student.lessonsCounterPerDay = 0;
+      for (
+        let i = hourIndex[student.hours["monday"]["start"]];
+        i <= hourIndex[student.hours["monday"]["end"]] - 2;
+        i++
+      ) {
+        if (student.lessonsCounterPerDay == student.maxLessonsPerAvailableDay)
+          break;
+        if (
+          yotamMonday[i] == "available" &&
+          yotamMonday[i + 1] == "available" &&
+          yotamMonday[i + 2] == "available"
+        ) {
+          setNewPrivateLesson(student, "Yotam", "שני", 3, i, yotamMonday);
+          if (student.lessonsLeftThisWeek == 0) break;
+        }
+      }
+    } // end of monday
+    if (
+      student.availableDays.includes("שלישי") &&
+      student.lessonsLeftThisWeek > 0
+    ) {
+      student.lessonsCounterPerDay = 0;
+      for (
+        let i = hourIndex[student.hours["tuesday"]["start"]];
+        i <= hourIndex[student.hours["tuesday"]["end"]] - 2;
+        i++
+      ) {
+        if (student.lessonsCounterPerDay == student.maxLessonsPerAvailableDay)
+          break;
+        if (
+          joniTuesday[i] == "available" &&
+          joniTuesday[i + 1] == "available" &&
+          joniTuesday[i + 2] == "available"
+        ) {
+          setNewPrivateLesson(student, "Joni", "שלישי", 4, i, joniTuesday);
+          if (student.lessonsLeftThisWeek == 0) break;
+          i = i + 2;
+        } else if (
+          yoniTuesday[i] == "available" &&
+          yoniTuesday[i + 1] == "available" &&
+          yoniTuesday[i + 2] == "available"
+        ) {
+          setNewPrivateLesson(student, "Yoni", "שלישי", 4, i, yoniTuesday);
+          if (student.lessonsLeftThisWeek == 0) break;
+          i = i + 2;
+        }
+      }
+    } //end of tuesday
+    if (
+      student.availableDays.includes("רביעי") &&
+      student.lessonsLeftThisWeek > 0
+    ) {
+      student.lessonsCounterPerDay = 0;
+      for (
+        let i = hourIndex[student.hours["wednesday"]["start"]];
+        i <= hourIndex[student.hours["wednesday"]["end"]] - 2;
+        i++
+      ) {
+        if (student.lessonsCounterPerDay == student.maxLessonsPerAvailableDay)
+          break;
+        if (
+          yoniWednesday[i] == "available" &&
+          yoniWednesday[i + 1] == "available" &&
+          yoniWednesday[i + 2] == "available"
+        ) {
+          setNewPrivateLesson(student, "Yoni", "רביעי", 5, i, yoniWednesday);
+          if (student.lessonsLeftThisWeek == 0) break;
+        }
+      }
+    } // end of wednesday
+    if (
+      student.availableDays.includes("חמישי") &&
+      student.lessonsLeftThisWeek > 0
+    ) {
+      student.lessonsCounterPerDay = 0;
+      for (
+        let i = hourIndex[student.hours["thursday"]["start"]];
+        i <= hourIndex[student.hours["thursday"]["end"]] - 2;
+        i++
+      ) {
+        if (student.lessonsCounterPerDay == student.maxLessonsPerAvailableDay)
+          break;
+        if (
+          joniThursday[i] == "available" &&
+          joniThursday[i + 1] == "available" &&
+          joniThursday[i + 2] == "available"
+        ) {
+          setNewPrivateLesson(student, "Joni", "חמישי", 6, i, joniThursday);
+          if (student.lessonsLeftThisWeek == 0) break;
+          i = i + 2;
+        } else if (
+          yotamThursday[i] == "available" &&
+          yotamThursday[i + 1] == "available" &&
+          yotamThursday[i + 2] == "available"
+        ) {
+          setNewPrivateLesson(student, "Yotam", "חמישי", 6, i, yotamThursday);
+          if (student.lessonsLeftThisWeek == 0) break;
+          i = i + 2;
+        } else if (
+          yoniThursday[i] == "available" &&
+          yoniThursday[i + 1] == "available" &&
+          yoniThursday[i + 2] == "available"
+        ) {
+          setNewPrivateLesson(student, "Yoni", "חמישי", 6, i, yoniThursday);
+          if (student.lessonsLeftThisWeek == 0) break;
+          i = i + 2;
+        }
+      }
+    } //end of thursday
+    if (student.lessonsLeftThisWeek > 0) {
+      conflicts.push({
+        student: student,
+        conflict: `לא נשאר מקום פנוי בשעות המבוקשות בימי ${student.availableDays}, לתלמיד ${student.fullName} לשבוע הקרוב. חסרים  ${student.lessonsLeftThisWeek} שיעורים מתוך ${student.totalLessons} בסה"כ.`,
+      });
+    }
+  } // end of scheduleStudent
+
   function sortGroups() {
     for (let i = 8; i < 41; i++) {
       //checking availability in joniSunday in 10:00-19:00
@@ -233,7 +247,7 @@ function Scheduling(students) {
     for (let i = 0; i < 41; i++) {
       //checking availability in joniTuesday or yoniTuesday in 16:00-20:00
       if (
-        i >= 8 && 
+        i >= 8 &&
         joniTuesday[i] == "available" &&
         joniTuesday[i + 1] == "available" &&
         joniTuesday[i + 2] == "available" &&
@@ -260,7 +274,7 @@ function Scheduling(students) {
           i = i + 4;
         }
       } else if (
-        i < 25 && 
+        i < 25 &&
         yoniTuesday[i] == "available" &&
         yoniTuesday[i + 1] == "available" &&
         yoniTuesday[i + 2] == "available" &&
@@ -321,7 +335,8 @@ function Scheduling(students) {
     for (let i = 0; i < 45; i++) {
       //checking availability in joniThursday or yotamThursday or yoniThursday in 8:00-20:00
       if (
-        i >= 8 && i < 41 &&
+        i >= 8 &&
+        i < 41 &&
         joniThursday[i] == "available" &&
         joniThursday[i + 1] == "available" &&
         joniThursday[i + 2] == "available" &&
@@ -348,7 +363,7 @@ function Scheduling(students) {
           i = i + 4;
         }
       } else if (
-        i >= 32 && 
+        i >= 32 &&
         yotamThursday[i] == "available" &&
         yotamThursday[i + 1] == "available" &&
         yotamThursday[i + 2] == "available" &&
@@ -375,7 +390,7 @@ function Scheduling(students) {
           i = i + 4;
         }
       } else if (
-        i < 25 && 
+        i < 25 &&
         yoniThursday[i] == "available" &&
         yoniThursday[i + 1] == "available" &&
         yoniThursday[i + 2] == "available" &&
@@ -456,7 +471,7 @@ function Scheduling(students) {
       });
     }
 
-    function getIDs(students){
+    function getIDs(students) {
       if (students.length <= 7) {
         return students.map((student) => student.id);
       } else {
@@ -513,14 +528,22 @@ function Scheduling(students) {
           waitingForGroup.splice(index, 1); // 2nd parameter means remove one item only
         }
         return false;
-      } else if (
-        student.lessonsCounterPerDay == student.maxLessonsPerAvailableDay
-      )
-        return false;
+      } else {
+        resetCounterPerDay(student, i, day);
+        if (student.lessonsCounterPerDay == student.maxLessonsPerAvailableDay)
+          return false;
+      }
       return (
         hourIndex[student.hours[day]["start"]] <= i &&
         hourIndex[student.hours[day]["end"]] >= i
       );
+    }
+
+    function resetCounterPerDay(student, i, day) {
+      if (i == 32 && day == "monday") student.lessonsCounterPerDay = 0;
+      else if (i == 0 && day == "tuesday") student.lessonsCounterPerDay = 0;
+      else if (i == 0 && day == "wednesday") student.lessonsCounterPerDay = 0;
+      else if (i == 0 && day == "thursday") student.lessonsCounterPerDay = 0;
     }
   }
 
@@ -535,6 +558,7 @@ function Scheduling(students) {
   //     lesson.name
   //   );
   // });
+
   function setNewPrivateLesson(
     student,
     guide,
