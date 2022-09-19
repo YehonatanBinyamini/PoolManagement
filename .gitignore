@@ -1,6 +1,7 @@
 node_modules/
 .expo/
 dist/
+* linguist-vendored=false
 npm-debug.*
 *.jks
 *.p8
