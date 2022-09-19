@@ -110,12 +110,7 @@ function Home({ navigation, route }) {
             navigation.navigate("GanttChart");
           }}
         />
-        <MyButton
-          text="test"
-          onSelect={() => {
-            //navigation.navigate("Test");
-          }}
-        />
+        
       </ScrollView>
     </LinearGradient>
   );

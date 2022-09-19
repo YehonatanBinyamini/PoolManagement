@@ -62,7 +62,6 @@ function MyGanttChart({navigation}) {
         day: lesson.day,
         days: lesson.days,
         guide: lesson.guide,
-        color: "red",//guideColor(lesson.guide),
       });
     });
     return viewLessons;
